@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
                         'name' => $category->name,
                         'products' => $category->products->map(function ($product) {
                             return [
+                                'id' => $product->id,
                                 'name' => $product->name,
                                 'description' => $product->description,
                                 'base_price' => $product->base_price,
@@ -59,6 +60,7 @@ Route::prefix('v1')->group(function () {
                 }),
                 'products' => \App\Models\Product::with(['category', 'pizza.ingredients'])->get()->map(function ($product) {
                     $data = [
+                        'id' => $product->id,
                         'name' => $product->name,
                         'description' => $product->description,
                         'base_price' => $product->base_price,
@@ -78,6 +80,7 @@ Route::prefix('v1')->group(function () {
                         foreach ($pizzaSizes as $size) {
                             $finalPrice = $product->base_price * $size->price_multiplier;
                             $data['prices_by_size'][$size->name] = [
+                                'id' => $size->id,
                                 'price' => round($finalPrice, 2),
                                 'description' => $size->description,
                             ];
@@ -88,6 +91,7 @@ Route::prefix('v1')->group(function () {
                 }),
                 'pizza_sizes' => \App\Models\PizzaSize::all()->map(function ($size) {
                     return [
+                        'id' => $size->id,
                         'name' => $size->name,
                         'description' => $size->description,
                         'price_multiplier' => $size->price_multiplier,
