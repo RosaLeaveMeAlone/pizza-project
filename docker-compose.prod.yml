@@ -1,0 +1,45 @@
+services:
+  pizza-project-app:
+    container_name: pizza-project-app
+    build:
+      context: ./
+      target: php
+      dockerfile: Dockerfile
+      args:
+        - user=laravel
+        - uid=1000
+        - APP_ENV=${APP_ENV}
+    image: pizza-project-app
+    volumes:
+      - pizza-database:/var/www/html/database
+    networks:
+      - pizza-network
+      - traefik-net
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: pizza-nginx
+    networks:
+      - pizza-network
+      - traefik-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pizza-nginx.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.pizza-nginx.service=pizza-nginx"
+      - "traefik.http.routers.pizza-nginx.tls=true"
+      - "traefik.http.routers.pizza-nginx.tls.certresolver=letsEncrypt"
+      - "traefik.http.routers.pizza-nginx.entrypoints=https"
+      - "traefik.http.services.pizza-nginx.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik-net"
+
+volumes:
+  pizza-database:
+    driver: local
+
+networks:
+  pizza-network:
+    driver: bridge
+  traefik-net:
+    external: true

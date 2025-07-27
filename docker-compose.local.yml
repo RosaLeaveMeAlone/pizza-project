@@ -1,0 +1,34 @@
+services:
+  pizza-project-app:
+    container_name: pizza-project-app
+    build:
+      context: ./
+      target: php
+      dockerfile: Dockerfile
+      args:
+        - user=laravel
+        - uid=1000
+        - APP_ENV=local
+    image: pizza-project-app
+    volumes:
+      - pizza-database:/var/www/html/database
+    networks:
+      - pizza-network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: pizza-nginx
+    ports:
+      - "8080:80"
+    networks:
+      - pizza-network
+
+volumes:
+  pizza-database:
+    driver: local
+
+networks:
+  pizza-network:
+    driver: bridge
